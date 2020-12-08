@@ -93,5 +93,8 @@ volumes:
 
 networks:
   web:
+    name: web
   psql_database:
+    name: psql_database
   mariadb_database:
+    name: mariadb_database
