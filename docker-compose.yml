@@ -1,53 +1,53 @@
-version: '3.3'
+version: "3.3"
 
 services:
   traefik:
-    image: 'traefik:v2.2'
-    container_name: 'traefik'
+    image: "traefik:v2.2"
+    container_name: "traefik"
     command:
       #- "--log.level=DEBUG"
-      - '--api.insecure=true'
-      - '--providers.docker=true'
-      - '--providers.docker.exposedbydefault=false'
-      - '--entrypoints.web.address=:80'
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
     ports:
-      - '80:80'
-      - '8080:8080'
+      - "80:80"
+      - "8080:8080"
     volumes:
-      - '/var/run/docker.sock:/var/run/docker.sock:ro'
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
     networks:
       - web
     restart: always
 
   whoami:
-    image: 'containous/whoami'
-    container_name: 'simple-service'
+    image: "containous/whoami"
+    container_name: "simple-service"
     labels:
-      - 'traefik.enable=true'
-      - 'traefik.http.routers.whoami.rule=Host(`whoami.localhost`)'
-      - 'traefik.http.routers.whoami.entrypoints=web'
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
+      - "traefik.http.routers.whoami.entrypoints=web"
     networks:
       - web
 
   psql_db:
     image: postgres:12.2-alpine
-    container_name: 'psql'
+    container_name: "psql"
     restart: always
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     networks:
-      - database
+      - psql_database
     volumes:
       - ./data:/var/lib/postgresql/data
 
   portainer:
     image: portainer/portainer:1.24.1
-    container_name: 'portainer'
+    container_name: "portainer"
     restart: always
     labels:
-      - 'traefik.enable=true'
-      - 'traefik.http.routers.portainer.rule=Host(`portainer.localhost`)'
-      - 'traefik.http.routers.portainer.entrypoints=web'
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.localhost`)"
+      - "traefik.http.routers.portainer.entrypoints=web"
       # - 'traefik.http.services.portainer.loadbalancer.server.port=9000'
       # - 'traefik.docker.network=web'
     command: -H unix:///var/run/docker.sock
@@ -59,25 +59,25 @@ services:
 
   db:
     image: mariadb:10.5.2
-    container_name: 'mariadb'
+    container_name: "mariadb"
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
     networks:
-      - database
+      - mariadb_database
     volumes:
       - ./data:/var/lib/mysql
 
   adminer:
     image: adminer:4.7.7
-    container_name: 'adminer'
-    restart: 'always'
+    container_name: "adminer"
+    restart: "always"
     labels:
-      - 'traefik.enable=true'
-      - 'traefik.http.routers.adminer.rule=Host(`adminer.localhost`)'
-      - 'traefik.http.routers.adminer.entrypoints=web'
-      - 'traefik.http.services.adminer.loadbalancer.server.port=8080'
-      - 'traefik.docker.network=web'
+      - "traefik.enable=true"
+      - "traefik.http.routers.adminer.rule=Host(`adminer.localhost`)"
+      - "traefik.http.routers.adminer.entrypoints=web"
+      - "traefik.http.services.adminer.loadbalancer.server.port=8080"
+      - "traefik.docker.network=web"
     environment:
       - ADMINER_PLUGINS=tinymce
     volumes:
@@ -86,13 +86,12 @@ services:
     networks:
       - mariadb_database
       - web
-      # - postgres_psql
+      - psql_database
 
 volumes:
   portainer_data:
 
 networks:
   web:
-    external: true
-  psql:
-  database:
+  psql_database:
+  mariadb_database:
