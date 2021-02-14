@@ -68,6 +68,20 @@ services:
     volumes:
       - ./data:/var/lib/mysql
 
+  mongodb:
+    container_name: mongodb
+    image: mongo:4.4.3
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./mongodb-data:/data/db
+    networks:
+      - mongodb
+    ports:
+      - 27017:27017
+
   adminer:
     image: adminer:4.7.8
     container_name: "adminer"
@@ -98,3 +112,5 @@ networks:
     name: psql_database
   mariadb_database:
     name: mariadb_database
+  mongodb:
+    name: mongodb

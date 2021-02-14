@@ -1,3 +1,4 @@
 .env
 portainer_data
 data
+mongodb-data
