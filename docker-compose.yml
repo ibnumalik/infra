@@ -41,15 +41,15 @@ services:
       - ./data:/var/lib/postgresql/data
 
   portainer:
-    image: portainer/portainer:1.24.1
+    image: portainer/portainer-ce:2.6.1
     container_name: "portainer"
     restart: always
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.portainer.rule=Host(`portainer.localhost`)"
       - "traefik.http.routers.portainer.entrypoints=web"
-      # - 'traefik.http.services.portainer.loadbalancer.server.port=9000'
-      # - 'traefik.docker.network=web'
+      - 'traefik.http.services.portainer.loadbalancer.server.port=9000'
+      - 'traefik.docker.network=web'
     command: -H unix:///var/run/docker.sock
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
