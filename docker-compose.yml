@@ -102,6 +102,19 @@ services:
       - web
       - psql_database
 
+  redis:
+    image: redis:6.2.4
+    container_name: redis
+    restart: always
+    ports:
+      - 6379:6379
+    volumes:
+      - ./redis/data:/var/lib/redis
+      # - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      - web
+      - redis
+
 volumes:
   portainer_data:
 
@@ -114,3 +127,5 @@ networks:
     name: mariadb_database
   mongodb:
     name: mongodb
+  redis:
+    name: redis
