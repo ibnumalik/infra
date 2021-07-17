@@ -83,7 +83,7 @@ services:
       - 27017:27017
 
   adminer:
-    image: adminer:4.7.8
+    image: adminer:4.8.1
     container_name: "adminer"
     restart: "always"
     labels:
