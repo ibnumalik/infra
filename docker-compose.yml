@@ -30,7 +30,7 @@ services:
       - web
 
   psql_db:
-    image: postgres:12.2-alpine
+    image: postgis/postgis:13-3.1
     container_name: "psql"
     restart: always
     environment:
