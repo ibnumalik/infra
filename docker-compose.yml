@@ -2,7 +2,7 @@ version: "3.3"
 
 services:
   traefik:
-    image: "traefik:v2.2"
+    image: "traefik:v2.5"
     container_name: "traefik"
     command:
       #- "--log.level=DEBUG"
@@ -10,6 +10,7 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
+      - "--accesslog=true"
     ports:
       - "80:80"
       - "8080:8080"
@@ -30,15 +31,16 @@ services:
       - web
 
   psql_db:
-    image: postgres:12.2-alpine
+    image: postgres:13.3-alpine
     container_name: "psql"
+    command: postgres -c listen_addresses='*'
     restart: always
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     networks:
       - psql_database
     volumes:
-      - ./data:/var/lib/postgresql/data
+      - ./psql:/var/lib/postgresql/data
 
   portainer:
     image: portainer/portainer:1.24.1
@@ -81,6 +83,22 @@ services:
       - mongodb
     ports:
       - 27017:27017
+
+  mongodb3:
+    container_name: mongodb3
+    image: mongo:3.6
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
+    command: --dbpath /data/db
+    volumes:
+      - ./mongodb-data-three:/data/db
+      - ./qld-mongo-db:/data/qld
+    networks:
+      - mongodb
+    ports:
+      - 27018:27017
 
   adminer:
     image: adminer:4.7.8
