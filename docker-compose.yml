@@ -19,12 +19,12 @@ services:
       #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
       - "--certificatesresolvers.myresolver.acme.email=ibnumalikmy@gmail.com"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-    label:
-      - "traefik.http.middlewares.https_redirect.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.https_redirect.redirectscheme.permanent=true"
-      - "traefik.http.routers.http_catchall.rule=HostRegexp(`{any:.+}`)"
-      - "traefik.http.routers.http_catchall.entrypoints=web"
-      - "traefik.http.routers.http_catchall.middlewares=https_redirect"
+    # label:
+    #   - "traefik.http.middlewares.https_redirect.redirectscheme.scheme=https"
+    #   - "traefik.http.middlewares.https_redirect.redirectscheme.permanent=true"
+    #   - "traefik.http.routers.http_catchall.rule=HostRegexp(`{any:.+}`)"
+    #   - "traefik.http.routers.http_catchall.entrypoints=web"
+    #   - "traefik.http.routers.http_catchall.middlewares=https_redirect"
 
     ports:
       - "80:80"
@@ -56,7 +56,7 @@ services:
     networks:
       - psql_database
     volumes:
-      - ./data:/var/lib/postgresql/data
+      - psql_data:/var/lib/postgresql/data
 
   portainer:
     image: portainer/portainer-ce:2.6.1
@@ -65,13 +65,14 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.portainer.rule=Host(`portainer.localhost`)"
-      - "traefik.http.routers.portainer.entrypoints=web"
+      - "traefik.http.routers.portainer.entrypoints=web,websecure"
       - 'traefik.http.services.portainer.loadbalancer.server.port=9000'
       - 'traefik.docker.network=web'
+      - "traefik.http.routers.portainer.tls.certresolver=myresolver"
     command: -H unix:///var/run/docker.sock
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./portainer_data:/data
+      - portainer_data:/data
     networks:
       - web
 
@@ -84,7 +85,7 @@ services:
     networks:
       - mariadb_database
     volumes:
-      - ./data:/var/lib/mysql
+      - maria_data:/var/lib/mysql
 
   mongodb:
     container_name: mongodb
@@ -94,7 +95,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - ./mongodb-data:/data/db
+      - mongodb_data:/data/db
     networks:
       - mongodb
     ports:
@@ -128,7 +129,7 @@ services:
     ports:
       - 6379:6379
     volumes:
-      - ./redis/data:/var/lib/redis
+      - redis_data:/var/lib/redis
       # - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
     networks:
       - web
@@ -136,6 +137,15 @@ services:
 
 volumes:
   portainer_data:
+    name: portainer_data
+  psql_data:
+    name: psql_data
+  maria_data:
+    name: maria_data
+  mongodb_data:
+    name: mongodb_data
+  redis_data:
+    name: redis_data
 
 networks:
   web:
